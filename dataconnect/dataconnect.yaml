@@ -1,0 +1,12 @@
+specVersion: "v1beta"
+serviceId: "panteras_angie_web"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "panteras_angie_web-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]
