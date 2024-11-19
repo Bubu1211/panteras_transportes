@@ -11,29 +11,18 @@ import {
 import { auth, database, usuario } from "../firebase/FirebaseApp";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router";
+import { ModalRegistro } from "./ModalRegistro";
+import Mapa from "./Mapa";
 
-/*
-console.log("----------------------DATOS-----------------------");
-        console.log("ID documento: ", d.id);
-        console.log("economizador: ", economizadorDoc.id,": ",  economizadorDoc.data());
-        console.log("tipo", tipoDoc.id, ": ", tipoDoc.data())
-        const date = new Date(registroData.fecha_hora.seconds*1000);
-        const fechaFormateada = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-        console.log("Fecha y hora: ", registroData.fecha_hora)
-        console.log("Fecha y hora con formato: ", fechaFormateada);
-        console.log("------------------------------------------------")
-*/
 
 const Admin = () => {
-  let recuperados = false;
   const [registros, setRegistros] = useState([]);
   const nav = useNavigate();
 
+  const verRegistro = () =>{
 
-  const showRegistros = () => {
-    console.log("REGISTROS actuales");
-    console.table(registros);
   }
+
   const volver = () => {
     auth.signOut(); //cierra sesion
     nav("/");
@@ -42,14 +31,6 @@ const Admin = () => {
   const obtenerRegistros = async () => {
     setRegistros([]);
     let nuevosRegistros = [];
-    const today = new Date();
-    const todayStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    );
-    //const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
     const q = query(
       collection(database, "registros")
     );
@@ -66,10 +47,13 @@ const Admin = () => {
           nombre: 
             `${eDoc.data().apellido_paterno +" "+ eDoc.data().apellido_materno}, ${eDoc.data().nombre_primero +" "+ eDoc.data().nombre_segundo} `,
           fecha_hora: date,
+          ubicacion: registroData.ubicacion,
           tipo: tipoDoc.id
         }
         nuevosRegistros = [...nuevosRegistros, registro];
         setRegistros(nuevosRegistros);
+        console.log("RegistroDATA");
+        console.log(registroData)
         console.log("objeto registrado")
         console.table(registro);
         
@@ -81,14 +65,14 @@ const Admin = () => {
   }
 
   return (
-    <Container className="mt-5">
+    <Container className="cont mt-5">
       <Row className="m-5 p-3" >
         <Col sm={10}>
           <h1>Bienvenido {usuario.nombres}</h1>
         </Col>
         <Col sm={2}>
           <Button
-            variant="outline-danger"
+            variant="danger"
             onClick={volver}
           >
             Cerrar Sesión
@@ -98,7 +82,7 @@ const Admin = () => {
       <Row>
         <InputGroup className="mb-3">
           <Button
-            variant="outline-secondary"
+            variant="primary"
             id="button-addon1"
             onClick={get}
           >
@@ -120,20 +104,14 @@ const Admin = () => {
                 <th>Nombre</th>
                 <th>Fecha</th>
                 <th>Hora</th>
+                <th>Ubicación</th>
                 <th>Tipo</th>
               </tr>
             </thead>
             <tbody>
               {
                 registros.map((reg, i) =>(
-                  <tr key={reg.id + i}>
-                    <td>{reg.id}</td>
-                    <td>{reg.ID_economizador}</td>
-                    <td>{reg.nombre}</td>
-                    <td>{reg.fecha_hora.getFullYear() + "/" + reg.fecha_hora.getMonth() + "/"+reg.fecha_hora.getDate()}</td>
-                    <td>{reg.fecha_hora.getHours() + ":" + reg.fecha_hora.getMinutes() + ":"+reg.fecha_hora.getSeconds()}</td>
-                    <td>{reg.tipo}</td>
-                  </tr>
+                  <ModalRegistro reg={reg} i={i}/>
                 ))
               }
             </tbody>
