@@ -7,6 +7,12 @@ import Row from "react-bootstrap/Row";
 import Mapa from "./Mapa";
 
 function ModalMapsRegistro({ reg, show, onHide }) {
+
+const copyLocation = () =>{
+    navigator.clipboard.writeText(reg.ubicacion._lat+", "+reg.ubicacion._long);
+    window.open("https://www.google.com.mx/maps", "_blank")
+}
+
   return (
     <Modal
       show={show}
@@ -38,7 +44,7 @@ function ModalMapsRegistro({ reg, show, onHide }) {
               Fecha:{" "}
               {reg.fecha_hora.getFullYear() +
                 "/" +
-                reg.fecha_hora.getMonth() +
+                (reg.fecha_hora.getMonth()+1) +
                 "/" +
                 reg.fecha_hora.getDate()}
             </Col>
@@ -51,9 +57,17 @@ function ModalMapsRegistro({ reg, show, onHide }) {
                 reg.fecha_hora.getSeconds()}
             </Col>
           </Row>
-          <Row>
-            <h1>Ubicación</h1>
-          </Row>
+          <div style={{display: 'flex', flexDirection: 'row'}}>
+            
+                <h1>Ubicación</h1>
+                
+                <Button onClick={copyLocation}>
+                <img width="28" height="28" src="https://img.icons8.com/color/48/copy--v1.png" alt="copy--v1"/>
+                </Button>
+            
+            <Col>
+            </Col>
+          </div>
           <Row>
             <Mapa  lat={reg.ubicacion._lat} lng={reg.ubicacion._long}/>
           </Row>
@@ -82,7 +96,7 @@ export function ModalRegistro({ reg, i }) {
         <td>
           {reg.fecha_hora.getFullYear() +
             "/" +
-            reg.fecha_hora.getMonth() +
+            (reg.fecha_hora.getMonth()+1) +
             "/" +
             reg.fecha_hora.getDate()}
         </td>

@@ -9,7 +9,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { auth, database, usuario } from "../firebase/FirebaseApp";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router";
 import { ModalRegistro } from "./ModalRegistro";
 import Mapa from "./Mapa";
@@ -17,11 +17,8 @@ import Mapa from "./Mapa";
 
 const Admin = () => {
   const [registros, setRegistros] = useState([]);
+  const [regFiltro, setRegFiltro] = useState([])
   const nav = useNavigate();
-
-  const verRegistro = () =>{
-
-  }
 
   const volver = () => {
     auth.signOut(); //cierra sesion
@@ -32,7 +29,8 @@ const Admin = () => {
     setRegistros([]);
     let nuevosRegistros = [];
     const q = query(
-      collection(database, "registros")
+      collection(database, "registros"),
+      orderBy("fecha_hora", "asc")
     );
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach(async (d) => {
@@ -58,15 +56,32 @@ const Admin = () => {
         console.table(registro);
         
     });
+    setRegFiltro(registros);
   };
 
   const get = async () =>{
     await obtenerRegistros();
   }
 
+  const esMismaFecha = (fecha1, fecha2) => {
+    return fecha1 >= fecha2
+  }
+   
+  const buscarNombre = () =>{
+    let id = document.getElementById("por_nombre").value;
+    setRegFiltro(registros.filter(r => r.ID_economizador === id))
+  }
+
+  const buscarFecha = () =>{
+    
+    let id = document.getElementById("por_fecha").value;
+    let fechaBuscada = new Date(id);
+    setRegFiltro(registros.filter(fecha => esMismaFecha(fecha.fecha_hora, fechaBuscada)))
+  }
+
   return (
-    <Container className="cont mt-5">
-      <Row className="m-5 p-3" >
+    <Container>
+      <Row className="m-3" >
         <Col sm={10}>
           <h1>Bienvenido {usuario.nombres}</h1>
         </Col>
@@ -89,14 +104,31 @@ const Admin = () => {
             Ver Registros
           </Button>
           <Form.Control
-            aria-label="Example text with button addon"
+          id="por_nombre"
+            placeholder="Buscar por ID Economizador"
+            aria-label="Buscar por nombre"
             aria-describedby="basic-addon1"
           />
+          <Button variant="secondary" onClick={buscarNombre}>
+            <img width="32" height="32" src="https://img.icons8.com/color/48/search-more.png" alt="search-more"/>
+          </Button>
+          <Form.Control
+            id="por_fecha"
+            type="datetime-local"
+            placeholder="Buscar por fecha"
+            aria-label="Buscar por fecha"
+            aria-describedby="basic-addon1"
+          />
+          <Button variant="secondary" onClick={buscarFecha}>
+            <img width="32" height="32" src="https://img.icons8.com/color/48/search-more.png" alt="search-more"/>
+          </Button>
         </InputGroup>
       </Row>
       <Row>
         <Col>
-          <Table striped bordered hover>
+        <div style={{height: '55vh', overflow: 'scroll'}}> 
+            
+          <Table striped bordered hover >
             <thead>
               <tr>
                 <th>ID</th>
@@ -110,12 +142,13 @@ const Admin = () => {
             </thead>
             <tbody>
               {
-                registros.map((reg, i) =>(
+                regFiltro.map((reg, i) =>(
                   <ModalRegistro reg={reg} i={i}/>
                 ))
               }
             </tbody>
           </Table>
+        </div>
         </Col>
       </Row>
     </Container>
